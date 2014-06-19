@@ -4,8 +4,6 @@ import logging
 
 from pyquery import PyQuery as pq
 
-from config import *
-
 """ This API only supports xml format, as it relies on the format for parsing the
     data into python data structures
 """
