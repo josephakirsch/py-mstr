@@ -291,7 +291,8 @@ class Report(object):
             'startCol': start_col,
             'maxRows': max_rows,
             'maxCols': max_cols,
-            'styleName': 'ReportDataVisualizationXMLStyle'
+            'styleName': 'ReportDataVisualizationXMLStyle',
+            'resultFlags' :'393216'
         }
         if value_prompt_answers:
             arguments.update({'valuePromptAnswers': '^'.join(value_prompt_answers)})
