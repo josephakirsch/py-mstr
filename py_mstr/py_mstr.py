@@ -26,7 +26,7 @@ class MstrClient(object):
         self._logout()
 
     def __str__(self):
-        print 'MstrClient session: %s' % self._session
+        return 'MstrClient session: %s' % self._session
 
     def _login(self, project_source, project_name, username, password):
         arguments = {
@@ -160,7 +160,7 @@ class Attribute(object):
         return "<Attribute: guid:%s name:%s>" % (self.guid, self.name)
 
     def __str__(self):
-        print "Attribute: %s - %s" % (self.guid, self.name)
+        return "Attribute: %s - %s" % (self.guid, self.name)
 
 
 class Metric(object):
@@ -174,7 +174,7 @@ class Metric(object):
         return "<Metric: guid:%s name:%s>" % (self.guid, self.name)
 
     def __str__(self):
-        print "Metric: %s - %s" % (self.guid, self.name)
+        return "Metric: %s - %s" % (self.guid, self.name)
 
 
 class Report(object):
@@ -340,11 +340,11 @@ class MstrClientException(Exception):
         self.msg = msg
 
     def __str__(self):
-        print self.msg
+        return self.msg
 
 class MstrReportException(Exception):
     def __init__(self, msg):
         self.msg = msg
 
     def __str__(self):
-        print self.msg
+        return self.msg
