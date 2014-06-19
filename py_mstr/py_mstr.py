@@ -17,9 +17,10 @@ class MstrClient(object):
             project_name, log_level=logging.WARNING):
         
         logger.setLevel(log_level)
+        global BASE_URL
+        BASE_URL = base_url
         self._session = self._login(project_source, project_name,
                 username, password)
-        BASE_URL = base_url
 
     def __del__(self):
         self._logout()
