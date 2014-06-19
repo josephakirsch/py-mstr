@@ -10,16 +10,18 @@ from config import *
     data into python data structures
 """
 BASE_PARAMS = {'taskEnv': 'xml', 'taskContentType': 'xml'}
+BASE_URL = 'http://hostname/MicroStrategy/asp/TaskProc.aspx?'
 logger = logging.getLogger(__name__)
 
 class MstrClient(object):
     
-    def __init__(self, PROJECT_SOURCE, PROJECT_NAME, USERNAME,
-            PASSWORD, log_level=logging.WARNING):
+    def __init__(self, base_url, username, password, project_source,
+            project_name, log_level=logging.WARNING):
         
         logger.setLevel(log_level)
         self._session = self._login(PROJECT_SOURCE, PROJECT_NAME,
                 USERNAME, PASSWORD)
+        BASE_URL = base_url
 
     def __del__(self):
         self._logout()
