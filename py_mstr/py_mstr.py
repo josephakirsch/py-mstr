@@ -19,8 +19,8 @@ class MstrClient(object):
             project_name, log_level=logging.WARNING):
         
         logger.setLevel(log_level)
-        self._session = self._login(PROJECT_SOURCE, PROJECT_NAME,
-                USERNAME, PASSWORD)
+        self._session = self._login(project_source, project_name,
+                username, password)
         BASE_URL = base_url
 
     def __del__(self):
@@ -29,13 +29,13 @@ class MstrClient(object):
     def __str__(self):
         print 'MstrClient session: %s' % self._session
 
-    def _login(self, PROJECT_SOURCE, PROJECT_NAME, USERNAME, PASSWORD):
+    def _login(self, project_source, project_name, username, password):
         arguments = {
             'taskId': 'login',
-            'server': PROJECT_SOURCE,
-            'project': PROJECT_NAME,
-            'userid': USERNAME,
-            'password': PASSWORD 
+            'server': project_source,
+            'project': project_name,
+            'userid': username,
+            'password': password 
         }
         logger.info("logging in.")
         response = _request(arguments)
