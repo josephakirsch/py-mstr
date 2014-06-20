@@ -88,7 +88,6 @@ class MstrClient(object):
         
     def _parse_elements(self, response):
         d = pq(response)
-        import pudb; pudb.set_trace()
         result = []
         for attr in d('block'):
             guid = attr.find('dssid').text
