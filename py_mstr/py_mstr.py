@@ -65,7 +65,8 @@ class MstrClient(object):
             result.append({
                 'name': folder.find('n').text,
                 'description': folder.find('d').text,
-                'id': folder.find('id').text
+                'id': folder.find('id').text,
+                'type': folder.find('t').text
             })
         return result
 
@@ -139,9 +140,9 @@ class MstrClient(object):
 
 
 class Singleton(type):
-    _instances = {}
     def __call__(cls, *args, **kwargs):
         # see if guid is in instances
+        print cls
         if args[0] not in cls._instances:
             cls._instances[args[0]] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[args[0]]
@@ -149,7 +150,7 @@ class Singleton(type):
 
 class Attribute(object):
     __metaclass__ = Singleton
-
+    _instances = {}
     def __init__(self, guid, name):
         self.guid = guid
         self.name = name
@@ -163,7 +164,7 @@ class Attribute(object):
 
 class Metric(object):
     __metaclass__ = Singleton
-
+    _instances = {}
     def __init__(self, guid, name):
         self.guid = guid
         self.name = name
