@@ -14,11 +14,9 @@ logger = logging.getLogger(__name__)
 class MstrClient(object):
     
     def __init__(self, base_url, username, password, project_source,
-            project_name, log_level=logging.WARNING):
+            project_name):
         
-        logger.setLevel(log_level)
-        global BASE_URL
-        BASE_URL = base_url
+        self._base_url = base_url
         self._session = self._login(project_source, project_name,
                 username, password)
 
@@ -37,12 +35,12 @@ class MstrClient(object):
             'password': password 
         }
         logger.info("logging in.")
-        response = _request(arguments)
+        response = self._request(arguments)
         d = pq(response)
         return d[0][0].find('sessionState').text
 
     def get_report(self, report_id):
-        return Report(self._session, report_id)
+        return Report(self, report_id)
 
     def get_folder_contents(self, folder_id=None):
         """Returns a dictionary with folder name, GUID, and description.
@@ -57,7 +55,7 @@ class MstrClient(object):
         arguments = {'sessionState': self._session, 'taskID': 'folderBrowse'}
         if folder_id:
             arguments.update({'folderID': folder_id})
-        response = _request(arguments)
+        response = self._request(arguments)
         return self._parse_folder_contents(response)
 
     def _parse_folder_contents(self, response):
@@ -85,15 +83,16 @@ class MstrClient(object):
 
         arguments = {'taskId': 'browseElements', 'attributeID': attribute_id,
                 'sessionState': self._session}
-        response = _request(arguments)
+        response = self._request(arguments)
         return self._parse_elements(response)
         
     def _parse_elements(self, response):
         d = pq(response)
+        import pudb; pudb.set_trace()
         result = []
         for attr in d('block'):
             guid = attr.find('dssid').text
-            result.append(Attribute(guid[:guid.index(':')], attr.find('n')))
+            result.append(Attribute(guid[:guid.index(':')], attr.find('n').text))
         return result
 
 
@@ -110,7 +109,7 @@ class MstrClient(object):
 
         arguments = {'taskId': 'getAttributeForms', 'attributeID': attribute_id,
                 'sessionState': self._session}
-        response = _request(arguments)
+        response = self._request(arguments)
         
         d = pq(response)
         return Attribute(d('dssid')[0].text, d('n')[0].text)
@@ -118,26 +117,26 @@ class MstrClient(object):
     def _logout(self):
         arguments = {'sessionState': self._session}
         arguments.update(BASE_PARAMS)
-        result = _request(arguments)
+        result = self._request(arguments)
         logging.info("logging out returned %s" % result)
 
 
-def _request(arguments):
-    """ assembles the url and performs a get request to
-        the MicroStrategy Task Service API
+    def _request(self, arguments):
+        """ assembles the url and performs a get request to
+            the MicroStrategy Task Service API
 
-        args:
-            arguments - a dictionary mapping get key parameters to values
+            args:
+                arguments - a dictionary mapping get key parameters to values
 
-        returns: the xml text response
-    """
+            returns: the xml text response
+        """
 
-    arguments.update(BASE_PARAMS)
-    request = BASE_URL + urllib.urlencode(arguments)
-    logger.info("submitting request %s" % request)
-    response = requests.get(request)
-    logger.info("received response %s" % response.text)
-    return response.text
+        arguments.update(BASE_PARAMS)
+        request = self._base_url + urllib.urlencode(arguments)
+        logger.info("submitting request %s" % request)
+        response = requests.get(request)
+        logger.info("received response %s" % response.text)
+        return response.text
 
 
 class Singleton(type):
@@ -179,14 +178,17 @@ class Metric(object):
 
 class Report(object):
 
-    def __init__(self, session, report_id):
-        self._session = session
+    def __init__(self, mstr_client, report_id):
+        self._mstr_client = mstr_client
         self._id = report_id
-        self._args = {'reportID': self._id,'sessionState': self._session}
+        self._args = {'reportID': self._id,'sessionState': mstr_client._session}
         self._attributes = []
         self._metrics = []
         self._headers = []
         self._values = []
+
+    def __str__(self):
+        return 'Report with id %s' % self._id
 
     def get_prompts(self):
         """ returns the prompts associated with this report. If there are
@@ -199,7 +201,7 @@ class Report(object):
 
         arguments = {'taskId': 'reportExecute'}
         arguments.update(self._args)
-        response = _request(arguments)
+        response = self._mstr_client._request(arguments)
         message_id = pq(response)[0][0][0].text
         if not message_id:
             logger.debug("failed retrieval of msgID in response %s" % response)
@@ -211,7 +213,7 @@ class Report(object):
             'msgID': message_id,
             'sessionState': self._session
         }
-        response = _request(arguments)
+        response = self._mstr_client._request(arguments)
         return self._parse_prompts(response)
 
     def _parse_prompts(self, response):
@@ -250,7 +252,7 @@ class Report(object):
             return self._attributes
         arguments = {'taskId': 'browseAttributeForms', 'contentType': 3}
         arguments.update(self._args)
-        response = _request(arguments)
+        response = self._mstr_client._request(arguments)
         self._parse_attributes(response)
         return self._attributes
 
@@ -299,7 +301,7 @@ class Report(object):
         if element_prompt_answers:
             arguments.update(self._format_element_prompts(element_prompt_answers))
         arguments.update(self._args)
-        response = _request(arguments)
+        response = self._mstr_client._request(arguments)
         self._values = self._parse_report(response)
 
     def _format_element_prompts(self, prompts):
