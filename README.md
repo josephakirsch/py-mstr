@@ -56,3 +56,15 @@ To execute a report, get a report object from mstr_client, and execute with opti
     except MstrReportException, e:
         print e
     
+    
+#### See folder contents
+
+    # refer to http://www.scribd.com/doc/82137944/List-of-Object-Type for type number meaning
+    # common number types: 3 - executable folder, 8 - folder, 10 - prompt
+    
+    contents = mstr_client.get_folder_contents('parent_folder_guid')
+    for content in contents:
+        print 'guid: %s name: %s, type: %s, description: %s' % (content['guid'], content['name'],
+            content['type'], content['description'])
+        
+        
