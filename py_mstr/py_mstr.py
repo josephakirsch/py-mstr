@@ -210,7 +210,7 @@ class Report(object):
             'taskId': 'getPrompts', 
             'objectType': '3',
             'msgID': message_id,
-            'sessionState': self._session
+            'sessionState': self._mstr_client._session
         }
         response = self._mstr_client._request(arguments)
         return self._parse_prompts(response)
