@@ -49,7 +49,7 @@ class MstrClient(object):
                 folder_id - id of folder to list contents. If not supplied,
                             returns contents of root folder
             returns:
-                dictionary with keys id, name, and description 
+                dictionary with keys id, name, description, and type 
         """
 
         arguments = {'sessionState': self._session, 'taskID': 'folderBrowse'}
@@ -79,7 +79,7 @@ class MstrClient(object):
                 attribute_id - the attribute id
 
             returns:
-                a list of Attribute objects
+                a list of strings containing the names for attribute values
         """
 
         arguments = {'taskId': 'browseElements', 'attributeID': attribute_id,
@@ -91,13 +91,13 @@ class MstrClient(object):
         d = pq(response)
         result = []
         for attr in d('block'):
-            guid = attr.find('dssid').text
-            result.append(Attribute(guid[:guid.index(':')], attr.find('n').text))
+            if attr.find('n').text:
+                result.append(attr.find('n').text)
         return result
 
 
     def get_attribute(self, attribute_id):
-        """ performs a loockup using MicroStrategy's API to return
+        """ performs a lookup using MicroStrategy's API to return
             the attribute object for the given attribute id.
 
             args:
@@ -107,10 +107,12 @@ class MstrClient(object):
                 an Attribute object
         """
 
+        if not attribute_id:
+            raise MstrClientException("You must provide an attribute id")
+            return
         arguments = {'taskId': 'getAttributeForms', 'attributeID': attribute_id,
                 'sessionState': self._session}
         response = self._request(arguments)
-        
         d = pq(response)
         return Attribute(d('dssid')[0].text, d('n')[0].text)
 
@@ -142,7 +144,6 @@ class MstrClient(object):
 class Singleton(type):
     def __call__(cls, *args, **kwargs):
         # see if guid is in instances
-        print cls
         if args[0] not in cls._instances:
             cls._instances[args[0]] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[args[0]]
@@ -202,11 +203,12 @@ class Report(object):
         arguments = {'taskId': 'reportExecute'}
         arguments.update(self._args)
         response = self._mstr_client._request(arguments)
-        message_id = pq(response)[0][0][0].text
-        if not message_id:
+        message = pq(response)('msg')('id')
+        if not message:
             logger.debug("failed retrieval of msgID in response %s" % response)
-            return MstrReportException("Error retrieving msgID for report")
-        
+            raise MstrReportException("Error retrieving msgID for report. Most likely the report does not have any prompts.")
+            return
+        message_id = message[0].text
         arguments = {
             'taskId': 'getPrompts', 
             'objectType': '3',
@@ -219,8 +221,8 @@ class Report(object):
     def _parse_prompts(self, response):
         prompts = []
         d = pq(response)[0][0]
-        for prompt in d.findall('prompts'):
-            data = prompt[0].find('orgn')
+        for prompt in d.find('prompts').iterchildren():
+            data = prompt.find('orgn')
             prompts.append(Attribute(data.find('did').text, data.find('n').text))
         return prompts
 
@@ -237,7 +239,7 @@ class Report(object):
             return self._headers
         logger.debug("Attempted to retrieve the headers for a report without" + 
                 " prior successful execution.")
-        return MstrReportException("Execute a report before viewing the headers")
+        raise MstrReportException("Execute a report before viewing the headers")
 
     def get_attributes(self):
         """ returns the attribute objects for the columns of this report.
@@ -264,14 +266,14 @@ class Report(object):
     def get_values(self):
         if self._values:
             return self._values
-        return MstrReportException("Execute a report before viewing the rows")
+        raise MstrReportException("Execute a report before viewing the rows")
 
     def get_metrics(self):
         if self._metrics:
             return self._metrics
         logger.debug("Attempted to retrieve the metrics for a report without" + 
                 " prior successful execution.")
-        return MstrReportException("Execute a report before viewing the metrics")
+        raise MstrReportException("Execute a report before viewing the metrics")
 
     def execute(self, start_row=0, start_col=0, max_rows=100000, max_cols=10,
                 value_prompt_answers=None, element_prompt_answers=None):
