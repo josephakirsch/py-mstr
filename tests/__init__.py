@@ -1,6 +1,8 @@
 import os.path
-import unittest
+from discover import DiscoveringTestLoader
 
-def run_tests():
+
+def get_tests():
     start_dir = os.path.dirname(__file__)
-    return unittest.TestLoader().discover(start_dir, pattern="*.py")
+    test_loader = DiscoveringTestLoader()
+    return test_loader.discover(start_dir, pattern="*.py")

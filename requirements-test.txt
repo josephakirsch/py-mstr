@@ -1,2 +1,2 @@
 mox
-unittest2
+discover

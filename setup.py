@@ -1,10 +1,7 @@
 
 from setuptools import find_packages, setup
-import platform
 
-tests_require=['mox==0.5.3']
-if platform.python_version() < '2.7':
-    tests_require.append("unittest2")
+tests_require=['mox==0.5.3', 'discover']
 setup(name='py-mstr',
     packages=find_packages(),  
     description = 'Python API for Microstrategy Web Tasks',
@@ -14,5 +11,5 @@ setup(name='py-mstr',
         'requests==2.3.0',
     ],
     tests_require=tests_require,
-    test_suite="tests.run_tests",
+    test_suite="tests.get_tests",
 )
