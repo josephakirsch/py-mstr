@@ -127,7 +127,7 @@ class MstrClientTestCase(mox.MoxTestBase):
         self.mox.ReplayAll()
 
         attr = self.client.get_attribute('attr_id')
-        self.assertIsInstance(attr, Attribute)
+        self.assertTrue(isinstance(attr, Attribute))
         self.assertEqual('attr_id', attr.guid)
         self.assertEqual('attr_name', attr.name)
 
