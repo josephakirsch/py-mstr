@@ -1,2 +1,2 @@
 
-from py_mstr import MstrClient
+from py_mstr import *
