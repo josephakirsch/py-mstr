@@ -1,7 +1,7 @@
 
-from py_mstr import MstrClient, Singleton, Attribute, Metric, Report, MstrClientException, MstrReportException
+from py_mstr import MstrClient, Singleton, Attribute, Metric, \
+    Report, MstrClientException, MstrReportException
 
-from mock import Mock
 import unittest
 import mox
 import stubout
@@ -15,36 +15,41 @@ class MstrClientTestCase(mox.MoxTestBase):
         self.client = MstrClient('url?', 'username', 'pw', 'source', 'name')
         self.client._session = 'session'
         self.mox.StubOutWithMock(self.client, "_request")
-        # self.mox.StubOutWithMock(self.client, "_logout")
 
     def tearDown(self):
         mox.MoxTestBase.tearDown(self)
 
     def test_init(self):
-        """ Requires creating a separate client object in order to test _login
+        """ Test the format of retrieving the session when logging in.
+            Requires creating a separate client object in order to test _login
         """
-        pass
-        # args = {
-        #     'taskId': 'login',
-        #     'server': 'source',
-        #     'project': 'name',
-        #     'userid': 'username',
-        #     'password': 'pw'
-        # }
-        # result = "<response><root><sessionState>session</sessionState><name></name></root></response>"
-        # self.mox.StubOutWithMock(MstrClient, '_request')
-        # self.mox.StubOutWithMock(MstrClient, '__del__')
-        # instance = MstrClient.__new__(MstrClient)
-        # instance._request(args).AndReturn(result)
-        # instance.__del__().AndReturn(None)
+        
+        args = {
+            'taskId': 'login',
+            'server': 'source',
+            'project': 'name',
+            'userid': 'username',
+            'password': 'pw'
+        }
+        result = "<response><root><sessionState>session</sessionState><name></name></root></response>"
+        self.mox.StubOutWithMock(MstrClient, '_request')
+        self.mox.StubOutWithMock(MstrClient, '__del__')
+        instance = MstrClient.__new__(MstrClient)
+        instance._request(args).AndReturn(result)
+        instance.__del__().AndReturn(None)
+        instance.__del__().AndReturn(None)
 
-        # self.mox.ReplayAll()
+        self.mox.ReplayAll()
 
-        # client = MstrClient('url?', 'username', 'pw', 'source', 'name')
-        # self.assertEqual('session', client._session)
-        # self.assertEqual('url?', client._base_url)
+        client = MstrClient('url?', 'username', 'pw', 'source', 'name')
+        self.assertEqual('session', client._session)
+        self.assertEqual('url?', client._base_url)
 
     def test_folder_contents(self):
+        """ Test folder contents are correctly parsed when either a parent folder is
+            supplied or is not
+        """
+
         args1 = {
             'sessionState': 'session',
             'taskID': 'folderBrowse',
@@ -79,6 +84,10 @@ class MstrClientTestCase(mox.MoxTestBase):
             'id': 'child id', 'type': '8'}, child_folder[0])
 
     def test_list_elements(self):
+        """ Test correct values are retrieved when retrieving all the values that
+            an attribute can take.
+        """
+
         args = {
             'taskId': 'browseElements',
             'attributeID': 'attr_id',
@@ -97,6 +106,10 @@ class MstrClientTestCase(mox.MoxTestBase):
         self.assertEqual('valid1', values[0])
 
     def test_get_attribute(self):
+        """ Test retrieving information about an attribute returns a proper
+            Attribute object.
+        """
+
         args = {
             'taskId': 'getAttributeForms',
             'attributeID': 'attr_id',
@@ -151,6 +164,11 @@ class MstrReportTestCase(mox.MoxTestBase):
         mox.MoxTestBase.tearDown(self)
 
     def test_no_prompts_gives_error(self):
+        """ Test that if a user tries to retrieve prompts for a report
+            and the report has no prompts, that the actual report is returned,
+            and subsequently an error is raised.
+        """
+
         args = {'reportID': 'report_id', 'sessionState': 'session', 'taskId': 'reportExecute'}
         self.client._request(args).AndReturn(self.report_response)
 
@@ -159,6 +177,10 @@ class MstrReportTestCase(mox.MoxTestBase):
         self.assertRaises(MstrReportException, self.report.get_prompts)
 
     def test_valid_prompts(self):
+        """ Test a proper use case of retrieving the prompts for a report and
+            that the message id is correctly forwarded to retrieve the prompts.
+        """
+
         args1 = {'reportID': 'report_id', 'sessionState': 'session', 'taskId': 'reportExecute'}
         self.client._request(args1).AndReturn("<response><msg><id>msg_id</id></msg></response>")
         args2 = {'taskId': 'getPrompts', 'objectType': '3', 'msgID': 'msg_id', 'sessionState':
@@ -176,6 +198,11 @@ class MstrReportTestCase(mox.MoxTestBase):
         self.assertEqual('attr1_id', prompts[0].guid)
 
     def test_get_attributes(self):
+        """ Test getting the attributes (or headers) for a report returns
+            valid Attribute/Metric objects. Also test that headers are saved
+            once a report has been executed or headers have been requested.
+        """
+
         args = {'taskId': 'browseAttributeForms', 'contentType': 3, 'sessionState': 'session',
             'reportID': 'report_id'}
         result = "<response><forms><attrs><a><did>attr1_id</did><n>attr1_name</n><fms><block>" +\
@@ -212,6 +239,9 @@ class MstrReportTestCase(mox.MoxTestBase):
         self.assertEquals(self.report._values, self.report.get_values())
 
     def test_basic_execute(self):
+        """ Test parsing of a report for a report with no prompts.
+        """
+
         self.client._request(self.report_args).AndReturn(self.report_response)
         self.mox.ReplayAll()
 
@@ -227,6 +257,10 @@ class MstrReportTestCase(mox.MoxTestBase):
         self.assertEqual([(attr1, 'col1_val2'), (attr2, 'col2_val2')], self.report._values[1])
 
     def test_element_prompt_execute(self):
+        """ Test element prompt answers are configured correctly before executing the
+            report. Prompt answers do not impact the format of the returned report
+        """
+
         import copy
         args1 = copy.deepcopy(self.report_args)
         args1['elementsPromptAnswers'] = 'attr1_id;attr1_id:value'
@@ -253,6 +287,10 @@ class MstrReportTestCase(mox.MoxTestBase):
             'attr1_id;attr1_id:val1;attr1_id:val2,attr2_id;attr2_id:val3'])
 
     def test_value_prompt_execute(self):
+        """ Test value prompt answers are correctly formated before executing the
+            report.
+        """
+
         import copy
         args1 = copy.deepcopy(self.report_args)
         args1['valuePromptAnswers'] = 'prompt1'

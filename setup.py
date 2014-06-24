@@ -6,7 +6,10 @@ setup(name='py-mstr',
     description = 'Python API for Microstrategy Web Tasks',
     url = 'http://github.com/infoscout/py-mstr',
     install_requires=[
-        'pyquery',
-        'requests',
+        'pyquery==1.2.8',
+        'requests==2.3.0',
+    ],
+    tests_require=[
+        'mox==0.5.3',
     ],
 )
