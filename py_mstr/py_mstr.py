@@ -4,8 +4,8 @@ import logging
 
 from pyquery import PyQuery as pq
 
-""" This API only supports xml format, as it relies on the format for parsing the
-    data into python data structures
+""" This API only supports xml format, as it relies on the format for parsing
+    the data into python data structures
 """
 BASE_PARAMS = {'taskEnv': 'xml', 'taskContentType': 'xml'}
 BASE_URL = 'http://hostname/MicroStrategy/asp/TaskProc.aspx?'
@@ -145,7 +145,8 @@ class Singleton(type):
     def __call__(cls, *args, **kwargs):
         # see if guid is in instances
         if args[0] not in cls._instances:
-            cls._instances[args[0]] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[args[0]] = super(Singleton, cls).__call__(*args,
+                **kwargs)
         return cls._instances[args[0]]
 
 
@@ -206,7 +207,8 @@ class Report(object):
         message = pq(response)('msg')('id')
         if not message:
             logger.debug("failed retrieval of msgID in response %s" % response)
-            raise MstrReportException("Error retrieving msgID for report. Most likely the report does not have any prompts.")
+            raise MstrReportException("Error retrieving msgID for report. Most" 
+                + " likely the report does not have any prompts.")
             return
         message_id = message[0].text
         arguments = {
@@ -250,7 +252,8 @@ class Report(object):
         """
 
         if self._attributes:
-            logger.info("Attributes have already been retrieved. Returning saved objects.")
+            logger.info("Attributes have already been retrieved. Returning " +
+                "saved objects.")
             return self._attributes
         arguments = {'taskId': 'browseAttributeForms', 'contentType': 3}
         arguments.update(self._args)
@@ -299,7 +302,8 @@ class Report(object):
             'resultFlags' :'393216'
         }
         if value_prompt_answers:
-            arguments.update({'valuePromptAnswers': '^'.join(value_prompt_answers)})
+            arguments.update({'valuePromptAnswers':
+                '^'.join(value_prompt_answers)})
         if element_prompt_answers:
             arguments.update(self._format_element_prompts(element_prompt_answers))
         arguments.update(self._args)
@@ -312,7 +316,8 @@ class Report(object):
             if result:
                 result += ","
             prefix = ";" + attr.guid + ":"
-            result = result + attr.guid + ";" + attr.guid + ":" + prefix.join(values)
+            result = result + attr.guid + ";" + attr.guid + ":" + \
+                prefix.join(values)
         return {'elementsPromptAnswers': result}
 
     def _parse_report(self, response):
