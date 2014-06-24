@@ -12,4 +12,5 @@ setup(name='py-mstr',
     tests_require=[
         'mox==0.5.3',
     ],
+    test_suite= "tests.run_tests",
 )
