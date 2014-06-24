@@ -1,5 +1,6 @@
 
 from setuptools import find_packages, setup
+import platform
 
 tests_require=['mox==0.5.3']
 if platform.python_version() < '2.7':
