@@ -294,13 +294,13 @@ class MstrReportTestCase(mox.MoxTestBase):
         # dict iteration is non-deterministic, so test it separately
         result = self.report._format_element_prompts({attr1: ['value1'],
             attr2: ['value2']})
-        self.assertIn(result['elementsPromptAnswers'],
+        self.failUnless(result['elementsPromptAnswers'] in
             ['attr2_id;attr2_id:value2,attr1_id;attr1_id:value1',
             'attr1_id;attr1_id:value1,attr2_id;attr2_id:value2'])
         
         result = self.report._format_element_prompts({attr1: ['val1', 'val2'],
             attr2: ['val3']})
-        self.assertIn(result['elementsPromptAnswers'],
+        self.failUnless(result['elementsPromptAnswers'] in
             ['attr2_id;attr2_id:val3,attr1_id;attr1_id:val1;attr1_id:val2',
             'attr1_id;attr1_id:val1;attr1_id:val2,attr2_id;attr2_id:val3'])
 
