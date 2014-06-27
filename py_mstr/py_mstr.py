@@ -315,9 +315,12 @@ class Report(object):
         for attr, values in prompts.iteritems():
             if result:
                 result += ","
-            prefix = ";" + attr.guid + ":"
-            result = result + attr.guid + ";" + attr.guid + ":" + \
-                prefix.join(values)
+            if values:
+                prefix = ";" + attr.guid + ":"
+                result = result + attr.guid + ";" + attr.guid + ":" + \
+                    prefix.join(values)
+            else:
+                result += attr.guid + ";"
         return {'elementsPromptAnswers': result}
 
     def _parse_report(self, response):
