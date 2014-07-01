@@ -178,6 +178,21 @@ class Metric(object):
         return "Metric: %s - %s" % (self.guid, self.name)
 
 
+class Prompt(object):
+
+    def __init__(self, guid, prompt_str, required, attribute=None):
+        self.guid = guid
+        self.prompt_str = prompt_str
+        self.attribute = attribute
+        self.required = required
+
+    def __repr__(self):
+        return "<Prompt: guid:%s string:%s>" % (self.guid, self.prompt_str)
+
+    def __str__(self):
+        return "Prompt: %s - %s" % (self.guid, self.prompt_str)
+
+
 class Report(object):
 
     def __init__(self, mstr_client, report_id):
@@ -198,7 +213,7 @@ class Report(object):
 
             args: None
 
-            returns: a list of Attribute objects
+            returns: a list of Prompt objects
         """
 
         arguments = {'taskId': 'reportExecute'}
@@ -228,13 +243,14 @@ class Report(object):
         d = pq(response)[0][0]
         for prompt in d.find('prompts').iterchildren():
             data = prompt.find('orgn')
+            attr = None
             if data is not None:
-                prompts.append(Attribute(data.find('did').text,
+                attr = Attribute(data.find('did').text,
                     data.find('n').text))
-            # TODO: create prompt object to support non attribute type prompts
-            # else:
-            #     raise MstrReportException("Could not find the prompt attribute"
-            #         + " guid and name. This report has unsupported prompts.")
+            s = prompt.find('mn').text
+            required = prompt.find('reqd').text
+            guid = prompt.find('loc').find('did').text
+            prompt.append(Prompt(guid, s, required, attr))
 
         return prompts
 
@@ -296,10 +312,12 @@ class Report(object):
                 start_col - first column number to be returned
                 max_rows - maximum number of rows to return
                 max_cols - maximum number of columns to return
-                value_prompt_answers - list of value prompt answers in order
+                value_prompt_answers - list of value prompt answers in order. If
+                    a value is to be left blank, pass a prompt object rather than
+                    the string answer
                 element_prompt_answers - element prompt answers represented as a
-                                         dictionary of attribute objects mapping
-                                         to a list of attribute values to pass
+                    dictionary of attribute objects mapping to a list of
+                    attribute values to pass
         """
 
         arguments = {
@@ -312,13 +330,27 @@ class Report(object):
             'resultFlags' :'393216'
         }
         if value_prompt_answers:
-            arguments.update({'valuePromptAnswers':
-                '^'.join(value_prompt_answers)})
+            arguments.update(self._format_value_prompts(value_prompt_answers))
         if element_prompt_answers:
             arguments.update(self._format_element_prompts(element_prompt_answers))
         arguments.update(self._args)
         response = self._mstr_client._request(arguments)
         self._values = self._parse_report(response)
+
+    def _format_value_prompts(self, prompts):
+        result = ''
+        for prompt in prompts:
+            if result:
+                result += '^'
+            if type(prompt) is Prompt:
+                result += "<rsl><pa pt='3' pin='0' did='" + prompt.guid + "' tp='10'/></rsl>"
+            elif type(prompt) is str:
+                result += prompt
+            else:
+                raise MstrReportException("Unknown value prompt answer"
+                    + " type. Pass a string for a value, and a prompt"
+                    + "object for no value")
+        return {'valuePromptAnswers': result}
 
     def _format_element_prompts(self, prompts):
         result = ''
