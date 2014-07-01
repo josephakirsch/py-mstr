@@ -231,9 +231,10 @@ class Report(object):
             if data is not None:
                 prompts.append(Attribute(data.find('did').text,
                     data.find('n').text))
-            else:
-                raise MstrReportException("Could not find the prompt attribute"
-                    + " guid and name. This report has unsupported prompts.")
+            # TODO: create prompt object to support non attribute type prompts
+            # else:
+            #     raise MstrReportException("Could not find the prompt attribute"
+            #         + " guid and name. This report has unsupported prompts.")
 
         return prompts
 
