@@ -221,11 +221,20 @@ class Report(object):
         return self._parse_prompts(response)
 
     def _parse_prompts(self, response):
+        """ There are many ways that prompts can be returned. This api
+        currently only supports a prompt that uses precreated prompt objects.
+        """
         prompts = []
         d = pq(response)[0][0]
         for prompt in d.find('prompts').iterchildren():
             data = prompt.find('orgn')
-            prompts.append(Attribute(data.find('did').text, data.find('n').text))
+            if data is not None:
+                prompts.append(Attribute(data.find('did').text,
+                    data.find('n').text))
+            else:
+                raise MstrReportException("Could not find the prompt attribute"
+                    + " guid and name. This report has unsupported prompts.")
+
         return prompts
 
     def get_headers(self):
