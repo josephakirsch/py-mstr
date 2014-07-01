@@ -246,7 +246,7 @@ class Report(object):
             attr = None
             if data is not None:
                 attr = Attribute(data.find('did').text,
-                    data.find('n').text))
+                    data.find('n').text)
             s = prompt.find('mn').text
             required = prompt.find('reqd').text
             guid = prompt.find('loc').find('did').text
