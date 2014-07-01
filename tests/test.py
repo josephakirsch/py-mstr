@@ -1,5 +1,5 @@
 
-from py_mstr import MstrClient, Singleton, Attribute, Metric, \
+from py_mstr import MstrClient, Singleton, Attribute, Metric, Prompt, \
     Report, MstrClientException, MstrReportException
 
 import unittest
@@ -194,18 +194,20 @@ class MstrReportTestCase(mox.MoxTestBase):
             "</msg></response>")
         args2 = {'taskId': 'getPrompts', 'objectType': '3', 'msgID': 'msg_id',
             'sessionState': 'session'}
-        result = "<response><rsl><prompts><block><junk>junk</junk><orgn><did>" +\
-            "attr1_id</did><t>12</t><n>attr1_name</n><desc/></orgn></block>" +\
-            "<block><orgn><did>attr2_id</did><t>type2</t><n>attr2_name</n>" +\
-            "<desc/></orgn></block></prompts></rsl></response>"
+        result = "<response><rsl><prompts><block><reqd>false</reqd><mn>msg1</mn><junk>junk</junk><orgn><did>" +\
+            "attr1_id</did><t>12</t><n>attr1_name</n><desc/></orgn><loc><did>guid1</did></loc></block>" +\
+            "<block><mn>msg2</mn><reqd>true</reqd><orgn><did>attr2_id</did><t>type2</t><n>attr2_name</n>" +\
+            "<desc/></orgn><loc><did>guid2</did></loc></block></prompts></rsl></response>"
         self.client._request(args2).AndReturn(result)
 
         self.mox.ReplayAll()
 
         prompts = self.report.get_prompts()
         self.assertEqual(2, len(prompts))
-        self.assertEqual('attr1_name', prompts[0].name)
-        self.assertEqual('attr1_id', prompts[0].guid)
+        self.assertEqual(Prompt, type(prompts[0]))
+        self.assertEqual('attr1_name', prompts[0].attribute.name)
+        self.assertEqual('attr1_id', prompts[0].attribute.guid)
+        self.assertEqual('msg1', prompts[0].prompt_str)
 
     def test_get_attributes(self):
         """ Test getting the attributes (or headers) for a report returns

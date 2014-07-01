@@ -250,7 +250,7 @@ class Report(object):
             s = prompt.find('mn').text
             required = prompt.find('reqd').text
             guid = prompt.find('loc').find('did').text
-            prompt.append(Prompt(guid, s, required, attr))
+            prompts.append(Prompt(guid, s, required, attribute=attr))
 
         return prompts
 
