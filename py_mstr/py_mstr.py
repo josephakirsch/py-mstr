@@ -202,7 +202,7 @@ class Report(object):
         self._attributes = []
         self._metrics = []
         self._headers = []
-        self._values = []
+        self._values = None
 
     def __str__(self):
         return 'Report with id %s' % self._id
