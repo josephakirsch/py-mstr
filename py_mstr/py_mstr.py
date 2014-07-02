@@ -367,7 +367,7 @@ class Report(object):
 
     def _parse_report(self, response):
         d = pq(response)
-        if self._report_errors(d)
+        if self._report_errors(d):
             return None
         if not self._headers:
             self._get_headers(d)

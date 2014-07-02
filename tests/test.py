@@ -251,6 +251,21 @@ class MstrReportTestCase(mox.MoxTestBase):
         self.report._values = ['v1', 'v2']
         self.assertEquals(self.report._values, self.report.get_values())
 
+    def test_error_execute(self):
+        """ Test that when an error is returned by MicroStrategy,
+        execute raises an exception
+        """
+        self.client._request(self.report_args).AndReturn("<taskResponse>" +
+            "<report_data_list><report_data><error>Object executed is in " +
+            "prompt status. Please resolve prompts and use the message ID." +
+            "</error></report_data></report_data_list></taskResponse>")
+
+        self.mox.ReplayAll()
+
+        self.assertRaises(MstrReportException, self.report.execute)
+        self.assertRaises(MstrReportException, self.report.get_values)
+        self.assertEqual(None, self.report._values)
+
     def test_basic_execute(self):
         """ Test parsing of a report for a report with no prompts.
         """
@@ -356,6 +371,14 @@ class SingletonTestCase(unittest.TestCase):
         s1 = Attribute('guid1', 'value1')
         s2 = Metric('guid1', 'value2')
         self.assertNotEqual(s1, s2)
+
+class PromptTestCase(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
 
 
 class AttributeTestCase(unittest.TestCase):
