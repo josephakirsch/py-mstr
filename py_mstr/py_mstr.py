@@ -293,7 +293,7 @@ class Report(object):
                 for attr in d('a')]
 
     def get_values(self):
-        if self._values:
+        if self._values is not None:
             return self._values
         raise MstrReportException("Execute a report before viewing the rows")
 
@@ -339,11 +339,11 @@ class Report(object):
 
     def _format_value_prompts(self, prompts):
         result = ''
-        for prompt in prompts:
-            if result:
+        for i, prompt in enumerate(prompts):
+            if i > 0:
                 result += '^'
             if type(prompt) is Prompt:
-                result += "<rsl><pa pt='3' pin='0' did='" + prompt.guid + "' tp='10'/></rsl>"
+                continue
             elif type(prompt) is str:
                 result += prompt
             else:
@@ -367,6 +367,8 @@ class Report(object):
 
     def _parse_report(self, response):
         d = pq(response)
+        if self._report_errors(d)
+            return None
         if not self._headers:
             self._get_headers(d)
         # iterate through the columns while iterating through the rows
@@ -374,7 +376,27 @@ class Report(object):
         # column for each row
         return [[(self._headers[index], val.text) for index, val
                 in enumerate(row.iterchildren())] for row in d('r')]
-                
+    
+    def _report_errors(self, d):
+        """ Performs error checking on the result from the execute
+            call. Specifically, this method is looking for the
+            <error> tag returned by MicroStrategy.
+
+            Args:
+                d - a pyquery object
+
+            Returns:
+                a boolean indicating whether or not there was an error.
+                If there was an error, an exception should be raised.
+        """
+
+        error = d('error')
+        if error:
+            raise MstrReportException("There was an error running the report." +
+                "Microstrategy error message: " + error[0].text)
+            return True
+        return False          
+    
     def _get_headers(self, d):
         obj = d('objects')
         headers = d('headers')
