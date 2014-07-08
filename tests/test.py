@@ -304,19 +304,22 @@ class MstrReportTestCase(mox.MoxTestBase):
         self.mox.ReplayAll()
 
         attr1 = Attribute('attr1_id', 'attr1_name')
+        prompt1 = Prompt('p1guid', 'Prompt 1', False, attr1)
         attr2 = Attribute('attr2_id', 'attr2_name')
-        self.report.execute(element_prompt_answers={attr1: ['value']})
-        self.report.execute(element_prompt_answers={attr1: ['val1', 'val2']})
+        prompt2 = Prompt('p2guid', 'Prompt 2', False, attr2)
+        self.report.execute(element_prompt_answers={prompt1: ['value']})
+        self.report.execute(element_prompt_answers={prompt1: ['val1', 'val2']})
+        # test with optional prompt
 
         # dict iteration is non-deterministic, so test it separately
-        result = self.report._format_element_prompts({attr1: ['value1'],
-            attr2: ['value2']})
+        result = self.report._format_element_prompts({prompt1: ['value1'],
+            prompt2: ['value2']})
         self.failUnless(result['elementsPromptAnswers'] in
             ['attr2_id;attr2_id:value2,attr1_id;attr1_id:value1',
             'attr1_id;attr1_id:value1,attr2_id;attr2_id:value2'])
         
-        result = self.report._format_element_prompts({attr1: ['val1', 'val2'],
-            attr2: ['val3']})
+        result = self.report._format_element_prompts({prompt1: ['val1', 'val2'],
+            prompt2: ['val3']})
         self.failUnless(result['elementsPromptAnswers'] in
             ['attr2_id;attr2_id:val3,attr1_id;attr1_id:val1;attr1_id:val2',
             'attr1_id;attr1_id:val1;attr1_id:val2,attr2_id;attr2_id:val3'])
@@ -331,14 +334,49 @@ class MstrReportTestCase(mox.MoxTestBase):
         args1['valuePromptAnswers'] = 'prompt1'
         self.client._request(args1).AndReturn(None)
 
-        self.report_args.update({'valuePromptAnswers': 'prompt1^prompt2'})
+        # multiple prompts
+        args2 = copy.deepcopy(self.report_args)
+        args2['valuePromptAnswers'] = 'prompt1^prompt2'
+        self.client._request(args2).AndReturn(None)
+        
+        # optional prompts
+        self.report_args.update({'valuePromptAnswers': '^prompt2^^prompt4^'})
         self.client._request(self.report_args).AndReturn(None)
 
         self.mox.ReplayAll()
 
-        self.report.execute(value_prompt_answers=['prompt1'])
-        self.report.execute(value_prompt_answers=['prompt1', 'prompt2'])
+        p1 = Prompt('guid1', 'P1', False)
+        p2 = Prompt('guid2', 'P2', True)
+        p3 = Prompt('guid3', 'P3', False)
+        p4 = Prompt('guid4', 'P4', True)
+        p5 = Prompt('guid5', 'P5', False)
 
+        self.report.execute(value_prompt_answers=[(p1, 'prompt1')])
+        self.report.execute(value_prompt_answers=[(p1, 'prompt1'),
+                                                 (p2, 'prompt2')])
+        self.report.execute(value_prompt_answers=[(p1, ''), (p2, 'prompt2'),
+                                                 (p3, ''), (p4, 'prompt4'),
+                                                 (p5, '')])
+
+    def test_value_and_element_prompt_execute(self):
+        """ Test that when both value prompt answers and element prompt
+        answers are included, the data is correctly formatted.
+        """
+        import copy
+        args1 = copy.deepcopy(self.report_args)
+        args1['elementsPromptAnswers'] = 'attr1_id;attr1_id:value'
+        args1['promptsAnswerXML'] = "<rsl><pa pt='5' pin='0' did='p2guid' " + \
+            "tp='10'>value2</pa><pa pt='5' pin='0' did='p3guid' tp='10'></pa></rsl>"
+        self.client._request(args1).AndReturn(None)
+
+        self.mox.ReplayAll()
+
+        attr1 = Attribute('attr1_id', 'attr1_name')
+        prompt1 = Prompt('p1guid', 'Prompt 1', False, attr1)
+        prompt2 = Prompt('p2guid', 'Prompt 2', False)
+        prompt3 = Prompt('p3guid', 'Prompt 3', False)
+        self.report.execute(element_prompt_answers={prompt1: ['value']},
+            value_prompt_answers=[(prompt2, 'value2'), (prompt3, '')])
 
 class SingletonTestCase(unittest.TestCase):
 

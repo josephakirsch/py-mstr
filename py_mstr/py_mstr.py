@@ -312,12 +312,12 @@ class Report(object):
                 start_col - first column number to be returned
                 max_rows - maximum number of rows to return
                 max_cols - maximum number of columns to return
-                value_prompt_answers - list of value prompt answers in order. If
-                    a value is to be left blank, pass a prompt object rather than
-                    the string answer
+                value_prompt_answers - list of (Prompts, strings) in order. If
+                    a value is to be left blank, the second argument in the tuple
+                    should be the empty string
                 element_prompt_answers - element prompt answers represented as a
-                    dictionary of attribute objects mapping to a list of
-                    attribute values to pass
+                    dictionary of Prompt objects (with attr field specified)
+                    mapping to a list of attribute values to pass
         """
 
         arguments = {
@@ -327,42 +327,54 @@ class Report(object):
             'maxRows': max_rows,
             'maxCols': max_cols,
             'styleName': 'ReportDataVisualizationXMLStyle',
-            'resultFlags' :'393216'
+            'resultFlags' :'393216' # prevent columns from merging
         }
-        if value_prompt_answers:
+        if value_prompt_answers and element_prompt_answers:
+            arguments.update(self._format_xml_prompts(value_prompt_answers,
+                element_prompt_answers))
+        elif value_prompt_answers:
             arguments.update(self._format_value_prompts(value_prompt_answers))
-        if element_prompt_answers:
+        elif element_prompt_answers:
             arguments.update(self._format_element_prompts(element_prompt_answers))
         arguments.update(self._args)
         response = self._mstr_client._request(arguments)
         self._values = self._parse_report(response)
 
+    def _format_xml_prompts(self, v_prompts, e_prompts):
+        result = "<rsl>"
+        for p, s in v_prompts:
+            result = result + "<pa pt='5' pin='0' did='" + p.guid + \
+                "' tp='10'>" + s + "</pa>"
+        result += "</rsl>"
+        d = self._format_element_prompts(e_prompts)
+        d['promptsAnswerXML'] = result
+        return d
+
     def _format_value_prompts(self, prompts):
+        import pudb; pudb.set_trace()
+
         result = ''
-        for i, prompt in enumerate(prompts):
+        for i, (prompt, s) in enumerate(prompts):
             if i > 0:
                 result += '^'
-            if type(prompt) is Prompt:
-                continue
-            elif type(prompt) is str:
-                result += prompt
-            else:
-                raise MstrReportException("Unknown value prompt answer"
-                    + " type. Pass a string for a value, and a prompt"
-                    + "object for no value")
+            if s:
+                result += s
+            elif not (s == '' and type(prompt) == Prompt):
+                raise MstrReportException("Invalid syntax for value prompt " +
+                    "answers. Must pass (Prompt, string) tuples")
         return {'valuePromptAnswers': result}
 
     def _format_element_prompts(self, prompts):
         result = ''
-        for attr, values in prompts.iteritems():
+        for prompt, values in prompts.iteritems():
             if result:
                 result += ","
             if values:
-                prefix = ";" + attr.guid + ":"
-                result = result + attr.guid + ";" + attr.guid + ":" + \
+                prefix = ";" + prompt.attribute.guid + ":"
+                result = result + prompt.attribute.guid + ";" + prompt.attribute.guid + ":" + \
                     prefix.join(values)
             else:
-                result += attr.guid + ";"
+                result += prompt.attribute.guid + ";"
         return {'elementsPromptAnswers': result}
 
     def _parse_report(self, response):
@@ -424,3 +436,4 @@ class MstrReportException(Exception):
 
     def __str__(self):
         return self.msg
+
