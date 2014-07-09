@@ -12,15 +12,27 @@ BASE_URL = 'http://hostname/MicroStrategy/asp/TaskProc.aspx?'
 logger = logging.getLogger(__name__)
 
 class MstrClient(object):
-    
+    """Client class encapsulating base logic for the MicroStrategy Task
+    Proc API
+    """
     def __init__(self, base_url, username, password, project_source,
             project_name):
-        
+        """Initialize the MstrClient by logging in and retrieving a session.
+
+        Args:
+            base_url (str): base url of form http://hostname/MicroStrategy/asp/TaskProc.aspx?
+            username (str): username for project
+            password (str): password for project
+            project_source (str): project source of form ip-####
+            project_name (str): name of project
+        """
         self._base_url = base_url
         self._session = self._login(project_source, project_name,
                 username, password)
 
     def __del__(self):
+        """Logs the user out of the session.
+        """
         self._logout()
 
     def __str__(self):
@@ -40,16 +52,23 @@ class MstrClient(object):
         return d[0][0].find('sessionState').text
 
     def get_report(self, report_id):
+        """Returns a report object.
+
+        Args:
+            report_id (str): report guid for the report
+        """
         return Report(self, report_id)
 
     def get_folder_contents(self, folder_id=None):
         """Returns a dictionary with folder name, GUID, and description.
 
-            args:
-                folder_id - id of folder to list contents. If not supplied,
-                            returns contents of root folder
-            returns:
-                a list of dictionaries with keys id, name, description, and type 
+        Args:
+            folder_id (str): guid of folder to list contents. If not supplied,
+            returns contents of root folder
+        
+        Returns:
+            list: list of dictionaries with keys id, name, description, and type
+            as keys 
         """
 
         arguments = {'sessionState': self._session, 'taskID': 'folderBrowse'}
@@ -71,15 +90,16 @@ class MstrClient(object):
         return result
 
     def list_elements(self, attribute_id):
-        """ returns the elements associated with the given attribute id.
-            Note that if the call fails (i.e. MicroStrategy returns an
-            out of memory stack trace) the returned list is empty
+        """Returns the elements associated with the given attribute id.
+        
+        Note that if the call fails (i.e. MicroStrategy returns an
+        out of memory stack trace) the returned list is empty
 
-            args:
-                attribute_id - the attribute id
+        Args:
+            attribute_id (str): the attribute guid
 
-            returns:
-                a list of strings containing the names for attribute values
+        Returns:
+            list: a list of strings containing the names for attribute values
         """
 
         arguments = {'taskId': 'browseElements', 'attributeID': attribute_id,
@@ -97,14 +117,17 @@ class MstrClient(object):
 
 
     def get_attribute(self, attribute_id):
-        """ performs a lookup using MicroStrategy's API to return
+        """ Performs a lookup using MicroStrategy's API to return
             the attribute object for the given attribute id.
 
-            args:
-                attribute_id - the attribute guid
-            
-            returns:
-                an Attribute object
+        Args:
+            attribute_id (str): the attribute guid
+        
+        Returns:
+            Attribute: Attribute object for this guid
+
+        Raises:
+            MstrClientException: if no attribute id is supplied
         """
 
         if not attribute_id:
@@ -123,13 +146,14 @@ class MstrClient(object):
 
 
     def _request(self, arguments):
-        """ assembles the url and performs a get request to
-            the MicroStrategy Task Service API
+        """Assembles the url and performs a get request to
+        the MicroStrategy Task Service API
 
-            args:
-                arguments - a dictionary mapping get key parameters to values
+        Args:
+            arguments (dict): Maps get key parameters to values
 
-            returns: the xml text response
+        Returns: 
+            str: the xml text response
         """
 
         arguments.update(BASE_PARAMS)
@@ -141,7 +165,20 @@ class MstrClient(object):
 
 
 class Singleton(type):
+    """Singleton parent class to preserve memory. 
+
+    Objects are considered to be the same, and thus a new object
+    does not need to be instantiated, if an object with that guid
+    already exists.
+    """
     def __call__(cls, *args, **kwargs):
+        """Called when a new Singleton object is created.
+
+        Singleton class checks to see if there is already a copy
+        of the object in the class instances, and if so returns
+        that object. Otherwise, it creates a new object of that
+        subclass type.
+        """
         # see if guid is in instances
         if args[0] not in cls._instances:
             cls._instances[args[0]] = super(Singleton, cls).__call__(*args,
@@ -150,9 +187,25 @@ class Singleton(type):
 
 
 class Attribute(object):
+    """ Object encapsulating an attribute on MicroStrategy
+
+    An attribute can take many values, all of which are elements
+    of that attribute. An attribute is defined by its name and
+    its guid. Its __metaclass__ is Singleton.
+    """
     __metaclass__ = Singleton
     _instances = {}
     def __init__(self, guid, name):
+        """Initializes the Attribute oject.
+
+        Upon creation, we first ensure
+        that another instance with this guid does not exist.
+        If not, a new object is created.
+
+        Args:
+            guid (str): guid for this attribute
+            name (str): the name of this attribute
+        """
         self.guid = guid
         self.name = name
 
@@ -164,9 +217,24 @@ class Attribute(object):
 
 
 class Metric(object):
+    """ Object encapsulating a metric on MicroStrategy
+
+    A metric represents computation on attributes. A metric
+    is defined by its name and its guid. Its __metaclass__ is Singleton.
+    """
     __metaclass__ = Singleton
     _instances = {}
     def __init__(self, guid, name):
+         """Initializes the Metric oject
+
+        Upon creation, we first ensure
+        that another instance with this guid does not exist.
+        If not, a new object is created.
+
+        Args:
+            guid (str): guid for this metric
+            name (str): the name of this metric
+        """
         self.guid = guid
         self.name = name
 
@@ -178,8 +246,26 @@ class Metric(object):
 
 
 class Prompt(object):
+     """ Object encapsulating a prompt on MicroStrategy
+
+    A prompt could be either an element prompt or a value prompt.
+    """
 
     def __init__(self, guid, prompt_str, required, attribute=None):
+        """Initializes the Prompt object.
+
+        A prompt object has a guid and string and is or is not
+        required. A prompt also potentially has an Attribute
+        associated with it if it is an element prompt.
+
+        Args:
+            guid (str): guid for the prompt
+            prompt_str (str): string for the prompt that is displayed
+            when the user uses the web interface
+            required (bool): indicates whether or not the prompt is required
+            attribute (Attribute): Attribute object associated with the
+            prompt if it is an element prompt
+        """
         self.guid = guid
         self.prompt_str = prompt_str
         self.attribute = attribute
@@ -207,12 +293,15 @@ class Report(object):
         return 'Report with id %s' % self._id
 
     def get_prompts(self):
-        """ returns the prompts associated with this report. If there are
-            no prompts, this method returns an error.
+        """ Returns the prompts associated with this report. If there are
+            no prompts, this method raises an error.
 
-            args: None
+        Returns: 
+            list: a list of Prompt objects
 
-            returns: a list of Prompt objects
+        Raises:
+            MstrReportException: if a msgID could not be retrieved
+            likely implying there are no prompts for this report.
         """
 
         arguments = {'taskId': 'reportExecute'}
@@ -236,7 +325,7 @@ class Report(object):
 
     def _parse_prompts(self, response):
         """ There are many ways that prompts can be returned. This api
-        currently only supports a prompt that uses precreated prompt objects.
+        currently supports a prompt that uses precreated prompt objects.
         """
         prompts = []
         d = pq(response)[0][0]
@@ -254,12 +343,11 @@ class Report(object):
         return prompts
 
     def get_headers(self):
-        """ returns the column headers for the report. A report must have
-            been executed before calling this method
-
-            args: None
+        """ Returns the column headers for the report. A report must have
+        been executed before calling this method
             
-            returns: a list of Attribute/Metric objects
+        Returns:
+            list: a list of Attribute/Metric objects
         """
 
         if self._headers:
@@ -269,13 +357,14 @@ class Report(object):
         raise MstrReportException("Execute a report before viewing the headers")
 
     def get_attributes(self):
-        """ returns the attribute objects for the columns of this report.
+        """Returns the attribute objects for the columns of this report.
 
-            args: None
+        If a report has not been executed, there exists an api call
+        to retrieve just the attribute objects in a Report.
 
-            returns: list of Attribute objects
+        Returns:
+            list: list of Attribute objects
         """
-
         if self._attributes:
             logger.info("Attributes have already been retrieved. Returning " +
                 "saved objects.")
@@ -294,19 +383,31 @@ class Report(object):
     def get_values(self):
         """ Returns the rows for a prompt that has been executed.
 
-        Args:
-            None
+        A report must have been executed for this method to run.
 
         Returns:
-            A list of lists containing tuples of the (Attribute/Metric, value)
+            list: list of lists containing tuples of the (Attribute/Metric, value)
             pair, where the Attribute/Metric is the object for the column header,
             and the value is that cell's value
+
+        Raises:
+            MstrReportException: if execute has not been called on this report
         """
         if self._values is not None:
             return self._values
         raise MstrReportException("Execute a report before viewing the rows")
 
     def get_metrics(self):
+        """Returns the metric objects for the columns of this report.
+
+        A report must have already been executed for this method to run.
+
+        Returns:
+            list: list of Attribute objects
+
+        Raises:
+            MstrReportException: if execute has not been called on this report
+        """
         if self._metrics:
             return self._metrics
         logger.debug("Attempted to retrieve the metrics for a report without" + 
@@ -317,19 +418,29 @@ class Report(object):
                 value_prompt_answers=None, element_prompt_answers=None):
         """Execute a report.
 
-
+        Executes a report with the specified parameters. Default values
+        are chosen so that most likely all rows and columns will be 
+        retrieved in one call. However, a client could use pagination
+        by cycling through calls of execute and changing the min and max
+        rows. Pagination is usefull when there is a risk of the amount of
+        data causing the MicroStrategy API to run out of memory. The report
+        supports any combination of optional/required value prompt answers
+        and element prompt answers.
 
         Args:
-            start_row - first row number to be returned
-            start_col - first column number to be returned
-            max_rows - maximum number of rows to return
-            max_cols - maximum number of columns to return
-            value_prompt_answers - list of (Prompts, strings) in order. If
+            start_row (int): first row number to be returned
+            start_col (int): first column number to be returned
+            max_rows (int): maximum number of rows to return
+            max_cols (int): maximum number of columns to return
+            value_prompt_answers (list): list of (Prompts, strings) in order. If
                 a value is to be left blank, the second argument in the tuple
                 should be the empty string
-            element_prompt_answers - element prompt answers represented as a
+            element_prompt_answers: (dict) element prompt answers represented as a
                 dictionary of Prompt objects (with attr field specified)
                 mapping to a list of attribute values to pass
+
+        Raises:
+            MstrReportException: if there was an error executing the report.
         """
 
         arguments = {
@@ -401,17 +512,22 @@ class Report(object):
     
     def _report_errors(self, d):
         """ Performs error checking on the result from the execute
-            call. Specifically, this method is looking for the
-            <error> tag returned by MicroStrategy.
+        call. 
 
-            Args:
-                d - a pyquery object
+        Specifically, this method is looking for the <error> tag
+        returned by MicroStrategy.
 
-            Returns:
-                a boolean indicating whether or not there was an error.
-                If there was an error, an exception should be raised.
+        Args:
+            d (pyquery): a pyquery object
+
+        Returns:
+            bool: indicates whether or not there was an error.
+            If there was an error, an exception should be raised.
+
+        Raises:
+            MstrReportException: if there was an error executing
+            the report.
         """
-
         error = d('error')
         if error:
             raise MstrReportException("There was an error running the report." +
@@ -434,6 +550,8 @@ class Report(object):
                 self._headers.append(metric)
 
 class MstrClientException(Exception):
+    """Class used to raise errors in the MstrClient class
+    """
     def __init__(self, msg):
         self.msg = msg
 
@@ -441,6 +559,8 @@ class MstrClientException(Exception):
         return self.msg
 
 class MstrReportException(Exception):
+    """Class used to raise errors in the MstrReport class
+    """
     def __init__(self, msg):
         self.msg = msg
 

@@ -243,7 +243,7 @@ one call.::
     for i in range(10):
         report.execute(start_row=min_row, max_rows=max_rows_returned)
         values = acv_report.get_values()
-        # ``values`` will be null if there are no rows left
+        # values will be null if there are no rows left
         if not values:
             break
         for row in values:
