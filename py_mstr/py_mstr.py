@@ -12,8 +12,7 @@ BASE_URL = 'http://hostname/MicroStrategy/asp/TaskProc.aspx?'
 logger = logging.getLogger(__name__)
 
 class MstrClient(object):
-    """Client class encapsulating base logic for the MicroStrategy Task
-    Proc API
+    """Class encapsulating base logic for the MicroStrategy Task Proc API
     """
     def __init__(self, base_url, username, password, project_source,
             project_name):
@@ -64,11 +63,11 @@ class MstrClient(object):
 
         Args:
             folder_id (str): guid of folder to list contents. If not supplied,
-            returns contents of root folder
+                returns contents of root folder
         
         Returns:
             list: list of dictionaries with keys id, name, description, and type
-            as keys 
+                as keys 
         """
 
         arguments = {'sessionState': self._session, 'taskID': 'folderBrowse'}
@@ -192,20 +191,18 @@ class Attribute(object):
     An attribute can take many values, all of which are elements
     of that attribute. An attribute is defined by its name and
     its guid. Its __metaclass__ is Singleton.
+
+    Args:
+        guid (str): guid for this attribute
+        name (str): the name of this attribute
+
+    Attributes:
+        guid (str): attribute guid
+        name (str): attribute name
     """
     __metaclass__ = Singleton
     _instances = {}
     def __init__(self, guid, name):
-        """Initializes the Attribute oject.
-
-        Upon creation, we first ensure
-        that another instance with this guid does not exist.
-        If not, a new object is created.
-
-        Args:
-            guid (str): guid for this attribute
-            name (str): the name of this attribute
-        """
         self.guid = guid
         self.name = name
 
@@ -221,20 +218,18 @@ class Metric(object):
 
     A metric represents computation on attributes. A metric
     is defined by its name and its guid. Its __metaclass__ is Singleton.
+
+    Args:
+        guid (str): guid for this metric
+        name (str): the name of this metric
+
+    Attributes:
+        guid (str): guid for this metric
+        name (str): the name of this metric
     """
     __metaclass__ = Singleton
     _instances = {}
     def __init__(self, guid, name):
-         """Initializes the Metric oject
-
-        Upon creation, we first ensure
-        that another instance with this guid does not exist.
-        If not, a new object is created.
-
-        Args:
-            guid (str): guid for this metric
-            name (str): the name of this metric
-        """
         self.guid = guid
         self.name = name
 
@@ -248,24 +243,29 @@ class Metric(object):
 class Prompt(object):
      """ Object encapsulating a prompt on MicroStrategy
 
-    A prompt could be either an element prompt or a value prompt.
+    A prompt object has a guid and string and is or is not
+    required. A prompt also potentially has an Attribute
+    associated with it if it is an element prompt.
+
+    Args:
+        guid (str): guid for the prompt
+        prompt_str (str): string for the prompt that is displayed
+            when the user uses the web interface
+        required (bool): indicates whether or not the prompt is required
+        attribute (Attribute): Attribute object associated with the
+            prompt if it is an element prompt
+
+    Attributes:
+        guid (str): guid for the prompt
+        prompt_str (str): string for the prompt that is displayed
+            when the user uses the web interface
+        required (bool): indicates whether or not the prompt is required
+        attribute (Attribute): Attribute object associated with the
+            prompt if it is an element prompt
+
     """
 
     def __init__(self, guid, prompt_str, required, attribute=None):
-        """Initializes the Prompt object.
-
-        A prompt object has a guid and string and is or is not
-        required. A prompt also potentially has an Attribute
-        associated with it if it is an element prompt.
-
-        Args:
-            guid (str): guid for the prompt
-            prompt_str (str): string for the prompt that is displayed
-            when the user uses the web interface
-            required (bool): indicates whether or not the prompt is required
-            attribute (Attribute): Attribute object associated with the
-            prompt if it is an element prompt
-        """
         self.guid = guid
         self.prompt_str = prompt_str
         self.attribute = attribute
@@ -279,6 +279,15 @@ class Prompt(object):
 
 
 class Report(object):
+    """Encapsulates a report in MicroStrategy
+
+    The most common use case will be to execute a report.
+
+    Args:
+        mstr_client (MstrClient): client to be used to
+            make requests
+        report_id (str): report guid
+    """
 
     def __init__(self, mstr_client, report_id):
         self._mstr_client = mstr_client
@@ -301,7 +310,7 @@ class Report(object):
 
         Raises:
             MstrReportException: if a msgID could not be retrieved
-            likely implying there are no prompts for this report.
+                likely implying there are no prompts for this report.
         """
 
         arguments = {'taskId': 'reportExecute'}
