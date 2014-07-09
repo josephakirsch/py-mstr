@@ -1,10 +1,10 @@
 ========================================================================
-py-mstr - Python package for MicroStrategy Task Proc API
+py-mstr
 ========================================================================
 
 .. figure:: https://travis-ci.org/infoscout/py-mstr.png
 
-py-mstr is a python package to connect and interact with MicroStrategy intelligence server. The code interacts with a MicroStrategy Webservices task processing api. Endpoint is generally ``http://hostname/MicroStrategy/asp/TaskProc.aspx?``.
+py-mstr is a python package to connect and interact with MicroStrategy intelligence server. The code interacts with a MicroStrategy Webservices Task Processing API. Endpoint is generally ``http://hostname/MicroStrategy/asp/TaskProc.aspx?``.
 
 Its features include:
 
