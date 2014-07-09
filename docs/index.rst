@@ -153,7 +153,7 @@ a java stack trace is returned. py-mstr currently responds to this case by retur
         print element
 
 
-Get a ``Report`` and execute.
+Get a ``Report`` and execute.::
 
     report = client.get_report('report_guid')
     report.execute()
@@ -183,9 +183,8 @@ type) and Value Prompt Answers.
 The user must understand what types of prompts make up the report
 they wish to execute, so that there is a correct matching of ``Prompt``
 objects to values. Prompts will be returned in the order that they are
-listed in the web interface, making it easier to expect wha
-
-
+listed in the web interface, making it easier to expect what prompts belong
+with what values::
 
  prompts = report.get_prompts()
 
@@ -202,17 +201,17 @@ listed in the web interface, making it easier to expect wha
 Installation
 ============
 
-Install $project by:
+Install py-mstr by:
 
 
 Contribute
 ==========
 
-- Source Code: https://github.com/infoscout/$project
+- Source Code: https://github.com/infoscout/py-mstr
 
 License
 =======
 
-    
+    py-mstr is licensed under the MIT license.
 
 
