@@ -2,7 +2,7 @@
 py-mstr - A python package for accessing the MicroStrategy Task Proc API
 ========================================================================
 
-.. figure:: https://travis-ci.org/infoscout/py-mstr.png
+.. figure:: https://travis-ci.org/infoscout/py-mstr.png (https://travis-ci.org/infoscout/py-mstr)
 
 py-mstr is a python package to connect and interact with MicroStrategy intelligence server. The code interacts with a MicroStrategy Webservices task processing api. Endpoint is generally ``http://hostname/MicroStrategy/asp/TaskProc.aspx?``.
 
@@ -41,8 +41,7 @@ First institiate the mstr_client object and establish connection:
    
     # Establish connection
     try:
-        mstr_client = MstrClient(base_url=BASE_URL, username=MSTR_USERNAME, password=MSTR_PASSWORD,
-                project_source=MSTR_PROJECT_SOURCE, project_name=MSTR_PROJECT_NAME, log_level=logging.DEBUG)
+        mstr_client = MstrClient(base_url=BASE_URL, username=MSTR_USERNAME, password=MSTR_PASSWORD, project_source=MSTR_PROJECT_SOURCE, project_name=MSTR_PROJECT_NAME)
     except MstrClientException, e:
         print e 
    
@@ -64,7 +63,7 @@ To execute a report, get a report object from mstr_client, and execute with opti
     prompts = report.get_prompts()
     answers = {}
     for prompt in prompts:
-        answers[prompt] = 'value'
+        answers[prompt] = ['value']
     
     try:
         report.execute(elements_prompt_answers=answers)

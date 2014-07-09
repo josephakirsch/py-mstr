@@ -49,7 +49,7 @@ class MstrClient(object):
                 folder_id - id of folder to list contents. If not supplied,
                             returns contents of root folder
             returns:
-                dictionary with keys id, name, description, and type 
+                a list of dictionaries with keys id, name, description, and type 
         """
 
         arguments = {'sessionState': self._session, 'taskID': 'folderBrowse'}
@@ -109,7 +109,6 @@ class MstrClient(object):
 
         if not attribute_id:
             raise MstrClientException("You must provide an attribute id")
-            return
         arguments = {'taskId': 'getAttributeForms', 'attributeID': attribute_id,
                 'sessionState': self._session}
         response = self._request(arguments)
@@ -293,6 +292,16 @@ class Report(object):
                 for attr in d('a')]
 
     def get_values(self):
+        """ Returns the rows for a prompt that has been executed.
+
+        Args:
+            None
+
+        Returns:
+            A list of lists containing tuples of the (Attribute/Metric, value)
+            pair, where the Attribute/Metric is the object for the column header,
+            and the value is that cell's value
+        """
         if self._values is not None:
             return self._values
         raise MstrReportException("Execute a report before viewing the rows")
@@ -306,18 +315,21 @@ class Report(object):
 
     def execute(self, start_row=0, start_col=0, max_rows=100000, max_cols=10,
                 value_prompt_answers=None, element_prompt_answers=None):
-        """
-            args:
-                start_row - first row number to be returned
-                start_col - first column number to be returned
-                max_rows - maximum number of rows to return
-                max_cols - maximum number of columns to return
-                value_prompt_answers - list of (Prompts, strings) in order. If
-                    a value is to be left blank, the second argument in the tuple
-                    should be the empty string
-                element_prompt_answers - element prompt answers represented as a
-                    dictionary of Prompt objects (with attr field specified)
-                    mapping to a list of attribute values to pass
+        """Execute a report.
+
+
+
+        Args:
+            start_row - first row number to be returned
+            start_col - first column number to be returned
+            max_rows - maximum number of rows to return
+            max_cols - maximum number of columns to return
+            value_prompt_answers - list of (Prompts, strings) in order. If
+                a value is to be left blank, the second argument in the tuple
+                should be the empty string
+            element_prompt_answers - element prompt answers represented as a
+                dictionary of Prompt objects (with attr field specified)
+                mapping to a list of attribute values to pass
         """
 
         arguments = {
@@ -351,8 +363,6 @@ class Report(object):
         return d
 
     def _format_value_prompts(self, prompts):
-        import pudb; pudb.set_trace()
-
         result = ''
         for i, (prompt, s) in enumerate(prompts):
             if i > 0:
