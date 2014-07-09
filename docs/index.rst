@@ -173,8 +173,33 @@ Get a ``Report`` and execute.::
 
 .. _execute-prompts
 
-Understanding Report Execution Prompts
-======================================
+Executing a Report
+==================
+
+Parameters
+----------
+
+Here is an in depth explanation of how to execute a ``Report``
+
+``start_row`` - First row number to be returned. Default is 0
+    
+``start_col`` - First column number to be returned. Default is 0
+    
+``max_rows`` - maximum number of rows to return. Default is 100,000. This number
+should be a default parameter that retrieves all rows in the report, because
+currently the maximum number of rows in a MicroStrategy report is ~60K. Note,
+however, that when there are a large number of columns in the row that it would
+be prudent to consider pagination, otherwise the api may return a Java out of
+memory stack trace. An example showing pagination is listed below.
+    
+``max_cols`` - maximum number of columns to return. Default is 10.
+    
+``value_prompt_answers`` - list of (Prompts, strings) in order. If a value is to be left blank, the second argument in the tuple should be the empty string
+    
+``element_prompt_answers`` - element prompt answers represented as a dictionary of Prompt objects (with attr field specified) mapping to a list of attribute values to pass
+
+Report Execution Prompts
+------------------------
 
 Currently, py-mstr supports Elements Prompt Answers (the most common
 type) and Value Prompt Answers.
@@ -193,14 +218,44 @@ with what values::
         else:
             print 'Prompt is a Value Prompt Answer'
 
+    value_answers = [(prompts[0], 'v1'), (prompts[2], 'v2')]
+    # You can pass multiple answers to one element prompt by including all values
+    # in the list for the prompt
+    element_answers = {prompts[1]: ['v3', 'v4']}
 
-    value_answers = ['v1', 'v2']
+You can pass no value for an optional parameter. The empty string for Value Prompt Answers signfies there should be no answer supplied.::
     
+    value_answers = [(prompts[0], ''), (prompts[2], 'v2')]
+
+For Element Prompt Answers, you pass an empty list as the value for the prompt
+key.::
+
+    element_answers = {prompts[1]: []}
+    
+Pagination
+----------
+
+Here is an example paging through rows rather than returning all rows in
+one call.::
+
+    min_row = 0
+    max_rows_returned = MAX_ROWS / 10
+    for i in range(10):
+        report.execute(start_row=min_row, max_rows=max_rows_returned)
+        values = acv_report.get_values()
+        # ``values`` will be null if there are no rows left
+        if not values:
+            break
+        for row in values:
+            for attr, val in row:
+                print val
+        min_row = (i + 1) * max_rows_returned
+    return result
 
 Installation
 ============
 
-Install py-mstr by:
+Install py-mstr by including it in your package dependencies.
 
 
 Contribute
