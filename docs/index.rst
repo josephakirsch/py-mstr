@@ -1,7 +1,7 @@
 .. default-domain:: py
 
 ===============================================
-py-mstr - A MicroStrategy Task Proc Api package
+py-mstr - MicroStrategy Task API package
 ===============================================
 
 Features:
@@ -113,7 +113,6 @@ object. The ``Singleton`` class is based of the ``guid`` instance variable.
 Tutorial
 ========
 
-``pip install py-mstr``
 
 Here is a sample use case of the api::
 
@@ -212,6 +211,6 @@ Contribute
 License
 =======
 
-    py-mstr is licensed under the MIT license.
+py-mstr is licensed under the MIT license.
 
 
