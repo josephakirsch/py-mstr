@@ -1,5 +1,5 @@
 ========================================================================
-py-mstr - A python package for accessing the MicroStrategy Task Proc API
+py-mstr - Python package for MicroStrategy Task Proc API
 ========================================================================
 
 .. figure:: https://travis-ci.org/infoscout/py-mstr.png
