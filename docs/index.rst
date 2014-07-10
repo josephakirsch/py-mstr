@@ -6,7 +6,6 @@ py-mstr - MicroStrategy Task API package
 
 .. toctree::
     :maxdepth: 2
-    index
     source/py_mstr
 
 Features:
@@ -244,7 +243,9 @@ one call.::
 Installation
 ============
 
-Install py-mstr by including it in your package dependencies.
+Install py-mstr through pip.::
+
+    pip install py-mstr
 
 
 Contribute
