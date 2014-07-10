@@ -116,8 +116,7 @@ class MstrClient(object):
 
 
     def get_attribute(self, attribute_id):
-        """ Performs a lookup using MicroStrategy's API to return
-            the attribute object for the given attribute id.
+        """ Returns the attribute object for the given attribute id.
 
         Args:
             attribute_id (str): the attribute guid

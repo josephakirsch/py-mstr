@@ -4,6 +4,11 @@
 py-mstr - MicroStrategy Task API package
 ===============================================
 
+.. toctree::
+    :maxdepth: 2
+
+    py_mstr
+
 Features:
 
 - Browse folders
