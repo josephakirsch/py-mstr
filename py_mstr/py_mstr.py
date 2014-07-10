@@ -241,7 +241,7 @@ class Metric(object):
 
 
 class Prompt(object):
-     """ Object encapsulating a prompt on MicroStrategy
+    """ Object encapsulating a prompt on MicroStrategy
 
     A prompt object has a guid and string and is or is not
     required. A prompt also potentially has an Attribute
@@ -262,9 +262,7 @@ class Prompt(object):
         required (bool): indicates whether or not the prompt is required
         attribute (Attribute): Attribute object associated with the
             prompt if it is an element prompt
-
     """
-
     def __init__(self, guid, prompt_str, required, attribute=None):
         self.guid = guid
         self.prompt_str = prompt_str
