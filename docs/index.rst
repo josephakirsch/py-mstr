@@ -6,7 +6,7 @@ py-mstr - MicroStrategy Task API package
 
 .. toctree::
     :maxdepth: 2
-    source/modules
+    modules
 
 Features:
 
