@@ -1,4 +1,5 @@
-
+#!/usr/bin/env python
+import re
 from setuptools import find_packages, setup
 
 with open('py_mstr/__init__.py', 'rb') as f:
