@@ -18,21 +18,13 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, basedir)
 
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
-
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.todo',
-    'sphinxcontrib.napoleon',
-]
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -45,6 +37,16 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
+
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+# ones.
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
+    'sphinxcontrib.napoleon',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -60,7 +62,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'py-mstr'
-copyright = u'2014, infoscout and neffertitijf'
+copyright = u'2014, InfoScout and Jocelyn Neff'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -213,7 +215,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'py-mstr.tex', u'py-mstr Documentation',
-   u'infoscout and neffertitijf', 'manual'),
+   u'InfoScout and Jocelyn Neff', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -243,7 +245,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'py-mstr', u'py-mstr Documentation',
-     [u'infoscout and neffertitijf'], 1)
+     [u'InfoScout and Jocelyn Neff'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -257,7 +259,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'py-mstr', u'py-mstr Documentation',
-   u'infoscout and neffertitijf', 'py-mstr', 'One line description of project.',
+   u'InfoScout and Jocelyn Neff', 'py-mstr', 'One line description of project.',
    'Miscellaneous'),
 ]
 
