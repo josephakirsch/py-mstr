@@ -15,103 +15,6 @@ Features:
 - Execute a ``Report`` with or without ``Prompt`` objects
 
 
-.. _classes
-
-Classes in py-mstr
-==================
-
-py-mstr is made up of multiple classes encapsulating different objects used
-by MicroStrategy. These include
-    
-    - MstrClient
-    - Attribute
-    - Metric
-    - Prompt
-    - Report
-
-MstrClient
-----------
-``MstrClient`` encapsulates the login, session, and logout logic for your project.
-
-
-Public Methods:
-    
-    - ``get_folder_contents``
-    - ``get_attribute``
-    - ``list_elements``
-
-Report
-------
-``Report`` encapsulates a report object. The most useful method will be the
-use cases for ``execute``.
-
-Public Methods:
-
-    - ``get_prompts``
-    - ``get_attributes``
-    - ``execute``
-
-The following may only be called once a report has been executed:
-
-    - ``get_headers``
-    - ``get_metrics``
-    - ``get_values``
-
-
-Prompt
-------
-
-A ``Prompt`` can take many forms. The supported prompt types are:
-
-    - Element Prompt Answers
-    - Value Prompt Answers
-
-Element Prompt Answers:
-    
-    This is the most common type of prompt. Typically, the MicroStrategy web interface displays it in a shopping cart style where you select from a list of elements for an ``Attribute``.
-
-Value Prompt Answers:
-
-    These prompts are where the user types a value into a text box, or chooses
-    a date from a calendar view. Filters are also answered this way. Note that
-    order matters because the answers are passed in a list, and the prompts appear
-    in the same order as they do in the web interface.
-
-
-Refer to http://www.bryanbrandow.com/2011/08/answering-prompts-via-url-api.html
-for more information about answering prompts via the api.
-
-Attribute
----------
-
-``Attribute`` objects are used in prompts, filters, and in columns for reports.
-They are also essential to ``elements_prompt_answers`` prompts when executing
-a ``Report``
-
-
-Accessible instance variables:
-    - ``guid``
-    - ``name``
-
-Metric
-------
-
-This class takes the same structure as ``Attribute``. A different class was created
-to allow the client to determine what the type of each column in a ``Report`` is.
-
-Accessible instance variables:
-    - ``guid``
-    - ``name``
-
-Singleton
----------
-
-Both ``Attribute`` and ``Metric`` have the defined ``Singleton`` class as their
-``__metaclass__``. This ensures that ``Attribute`` objects with the same guid
-are the same object, thus saving memory. The same applies to the ``Metric``
-object. The ``Singleton`` class is based of the ``guid`` instance variable.
-
-
 .. _tutorial
 
 Tutorial
@@ -175,17 +78,33 @@ Get a ``Report`` and execute.::
         for attr, val in row:
             print val
 
-.. _execute-prompts
+.. _execute-report
 
 Executing a Report
 ==================
 
 
-Report Execution Prompts
-------------------------
+Report Prompts
+--------------
 
 Currently, py-mstr supports Elements Prompt Answers (the most common
 type) and Value Prompt Answers.
+
+Element Prompt Answers:
+    
+    This is the most common type of prompt. Typically, the MicroStrategy web interface displays it in a 
+    shopping cart style where you select from a list of elements for an ``Attribute``.
+
+Value Prompt Answers:
+
+    These prompts are where the user types a value into a text box, or chooses
+    a date from a calendar view. Filters are also answered this way. Note that
+    order matters because the answers are passed in a list, and the prompts appear
+    in the same order as they do in the web interface.
+
+
+Refer to http://www.bryanbrandow.com/2011/08/answering-prompts-via-url-api.html
+for more information about answering prompts via the api.
 
 The user must understand what types of prompts make up the report
 they wish to execute, so that there is a correct matching of ``Prompt``
@@ -206,7 +125,8 @@ with what values::
     # in the list for the prompt
     element_answers = {prompts[1]: ['v3', 'v4']}
 
-You can pass no value for an optional parameter. The empty string for Value Prompt Answers signfies there should be no answer supplied.::
+You can pass no value for an optional parameter. The empty string for Value Prompt Answers 
+signfies there should be no answer supplied.::
     
     value_answers = [(prompts[0], ''), (prompts[2], 'v2')]
 
@@ -221,7 +141,8 @@ Pagination
 The default number of rows to be returned is 100,000. This number
 should be a default parameter that retrieves all rows in the report, because
 currently the maximum number of rows in a MicroStrategy report is ~60K. Note,
-however, that when there are a large number of columns in the row that it would be prudent to consider pagination, otherwise the api may return a Java out of memory stack trace. An example showing pagination is listed below.
+however, that when there are a large number of columns in the row that it would be prudent 
+to consider pagination, otherwise the api may return a Java out of memory stack trace. 
 
 Here is an example paging through rows rather than returning all rows in
 one call.::
