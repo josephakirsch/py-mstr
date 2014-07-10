@@ -2,7 +2,7 @@
 py-mstr
 =======
 
-.. figure:: https://travis-ci.org/infoscout/py-mstr.png (https://travis-ci.org/infoscout/py-mstr)
+.. figure:: https://travis-ci.org/infoscout/py-mstr.png
 
 py-mstr is a python package to connect and interact with MicroStrategy intelligence server. The code interacts with a MicroStrategy Webservices Task Processing API. Endpoint is generally ``http://hostname/MicroStrategy/asp/TaskProc.aspx?``.
 
@@ -20,6 +20,13 @@ On a ``Report``:
 - Get the ``Attribute`` objects for the columns of the ``Report``
 - Get the ``Metric`` objects for the columns of the ``Report``
 - Get the values for the rows of the ``Report``
+
+Installation
+============
+
+.. code-block:: python
+
+    pip install py-mstr
 
 Implementation 
 ==============
@@ -95,8 +102,10 @@ common number types: 3 - executable folder, 8 - folder, 10 - prompt
             content['type'], content['description'])
 
 
-Building the documentation
+Documentation
 ==========================
+
+Refer to http://py-mstr.readthedocs.org for in depth documentation
 
 If you want to build the docs from within a virtualenv, and Sphinx is installed globally, use::
     
