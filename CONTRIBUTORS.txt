@@ -1,0 +1,14 @@
+# Contributions to the py-mstr project
+
+## Creator
+
+* Jocelyn Neff <jocelynneff@cs.stanford.edu>
+
+## Maintainer
+
+* Jocelyn Neff and InfoScout <oss@infoscoutinc.com>
+
+
+## Contributors
+
+In chronological order:
