@@ -115,11 +115,10 @@ If you want to build the docs from within a virtualenv, and Sphinx is installed 
 Contributing
 ============
 
-1. Check for [open issues](https://github.com/infoscout/py-mstr/issues)
-    or open a fresh issue to start a discussion around a feature idea or a bug.
-2. Fork the [py-mstr](https://github.com/infoscout/py-mstr) repository on Github to make your changes.
-3. Write tests to show the changes work as expected.
-4. Send a pull request to the maintainer. Add yourself to ``CONTRIBUTORS.txt``.
+#. Check for `open issues <https://github.com/infoscout/py-mstr/issues>`_ or open a fresh issue to start a discussion around a feature idea or a bug.
+#. Fork the `py-mstr <https://github.com/infoscout/py-mstr>`_ repository on Github to make your changes.
+#. Write tests to show the changes work as expected.
+#. Send a pull request to the maintainer. Add yourself to ``CONTRIBUTORS.txt``.
 
 Change log
 ==========
