@@ -91,7 +91,7 @@ To execute a report, get a report object from mstr_client, and execute with opti
 See folder contents
 -------------------
 
-refer to http://www.scribd.com/doc/82137944/List-of-Object-Type for type number meaning
+refer to this `post <http://www.scribd.com/doc/82137944/List-of-Object-Type>`_ for type number meaning
 common number types: 3 - executable folder, 8 - folder, 10 - prompt
       
 .. code-block:: python
@@ -105,7 +105,7 @@ common number types: 3 - executable folder, 8 - folder, 10 - prompt
 Documentation
 ==========================
 
-Refer to http://py-mstr.readthedocs.org for in depth documentation
+Refer to `ReadTheDocs <http://py-mstr.readthedocs.org>`_ for in depth documentation
 
 If you want to build the docs from within a virtualenv, and Sphinx is installed globally, use::
     
