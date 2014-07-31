@@ -14,7 +14,7 @@ setup(
     url = 'http://github.com/infoscout/py-mstr',
     author='InfoScout',
     author_email='oss@infoscoutinc.com',
-    lincense='MIT',
+    license='MIT',
     install_requires=[
         'pyquery==1.2.8',
         'requests==2.3.0',
