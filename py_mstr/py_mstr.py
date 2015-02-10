@@ -420,7 +420,7 @@ class Report(object):
                 " prior successful execution.")
         raise MstrReportException("Execute a report before viewing the metrics")
 
-    def execute(self, start_row=0, start_col=0, max_rows=100000, max_cols=10,
+    def execute(self, start_row=0, start_col=0, max_rows=100000, max_cols=255,
                 value_prompt_answers=None, element_prompt_answers=None):
         """Execute a report.
 
