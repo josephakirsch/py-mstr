@@ -137,7 +137,7 @@ class MstrClient(object):
         return Attribute(d('dssid')[0].text, d('n')[0].text)
 
     def _logout(self):
-        arguments = {'sessionState': self._session}
+        arguments = {'sessionState': self._session, 'taskId': 'logout'}
         arguments.update(BASE_PARAMS)
         result = self._request(arguments)
         logging.info("logging out returned %s" % result)
